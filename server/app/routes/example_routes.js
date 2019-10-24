@@ -44,6 +44,12 @@ router.get('/examples', requireToken, (req, res, next) => {
     .catch(next)
 })
 
+// 
+router.get('/exampless', requireToken, (req, res, next) => {
+  res.status(200).json({"ss":"xx"})
+})
+
+
 // SHOW
 // GET /examples/5a7db6c74d55bc51bdf39793
 router.get('/examples/:id', requireToken, (req, res, next) => {

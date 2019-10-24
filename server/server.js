@@ -4,6 +4,10 @@ const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const cors = require('cors')
 
+// Define Ports
+const reactPort = 7165  // this port of api of react
+const expressPort = 3000 // this is port of the server 
+
 // require route files
 const exampleRoutes = require('./app/routes/example_routes')
 const userRoutes = require('./app/routes/user_routes')
@@ -33,10 +37,10 @@ const app = express()
 
 // set CORS headers on response from this API using the `cors` NPM package
 // `CLIENT_ORIGIN` is an environment variable that will be set on Heroku
-app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:3000' }))
+app.use(cors({ origin: process.env.CLIENT_ORIGIN || `http://localhost:${expressPort}` }))
 
 // define port for API to run on
-const port = process.env.PORT || 4741
+const port = process.env.PORT || expressPort
 
 
 // this middleware makes it so the client can use the Rails convention
