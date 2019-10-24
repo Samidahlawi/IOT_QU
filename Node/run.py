@@ -3,9 +3,7 @@ from flask_restful import Resource, Api
 from datetime import datetime
 from config import ConfigAddress
 from attachments import Attachment
-
-import time 
-
+import requests, time, json
 
 app = Flask(__name__)
 api = Api(app)
@@ -20,33 +18,48 @@ api = Api(app)
 first_time_run = True
 set_time = ''
 
-###########
+# class of main server
+class Server():
+  def __init__(self,ip,port):
+	self.ip = ip # The IP of the server
+	self.port = port # which port the server is running right-now
+
+
+########### START GLOBAL VARIABLES ############
+# SEREVR information
+server = Server('192.168.1.2','3000')
+
+
 # ATTACHMENTS HERE
 all_attachment = ['air quality sensor','temperature sensor', 'humidity sensor'] 
-##########
+
+
+# setup the node information
+node = {
+ "ip_address":ConfigAddress().get_ip_address(),
+ "id":ConfigAddress().get_mac_address('wlan0'), # wlan0 for interface of wifi in the raspberryPi
+ "start":datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
+ "attachments":all_attachment,
+ "power_supply":"Battery",
+ "device_type":"Raspberry PI"
+}
+
+print('>>##################################START RUN NODE#####################################')
+print(node)
+print('>>#####################################################################################')
+##########  END  GLOBAL VARIABLES ###########
+
+
 
 # This class for request and response for device information 
 class DeviceInfo(Resource):
-	# wlan0 for interface of wifi in the raspberryPi 
-	address = ConfigAddress()
-	mac_address = address.get_mac_address('wlan0')
-	ip_address  = address.get_ip_address() 
 	# function will return json about informatin of device 
 	def get(self):
-		global first_time_run, set_time, all_attachments
+		global node
+		return node,200
 
-		if (first_time_run):
-		    set_time  = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-		    first_time_run = False
-		return {
-			"ip_address":self.ip_address,
-			"id":self.mac_address,
-			"start_Run":set_time,
-			"attachments":all_attachment,
-			"power_supply":"Battery",
-			"device_type":"Raspberry PI"
-			},200
 
+# This class for read data from sensor node
 class ReadData(Resource):
 	def post(self):
 		global all_attachment
@@ -66,7 +79,7 @@ class ReadData(Resource):
 			sensor = Attachment()
 			results.append(sensor.air_quality_sensor()) # there is a paramter 'pin' if you would like to change the pin 
 			if int(time.time() - timestamp) >= duration*60:
-				print('done')
+				print('>>done')
 				print(results)
 				return {'results':results,'number_of_result':len(results)}, 200
 
@@ -79,14 +92,36 @@ class ReadData(Resource):
 		else:
 		  return {'Error':'[error]'},204
 
-
-# GET - /device_info => to get details of the device
-api.add_resource(DeviceInfo,'/device_info')
+# DEFINE PATH 
+# GET - /device-info => to get details of the device
+api.add_resource(DeviceInfo,'/device-info')
 # POST - /readdata 
 api.add_resource(ReadData,'/readdata')
 
 
+### DEVICE REGISTRY
+# Make a request to the device-registry in the main server and send the object of node to save it in the database of the server
+def register_node():
+    try:
+	r = requests.post('http://'+server.ip+':'+server.port+'/device-registry', json=node)
+	res = json.loads(r.text)
+	if res['exist']:
+		print('****** SUCCSSFULLY REGISTERED ******')
+		print('>> The NODE registered succssfully ...')
+    except:
+	print("****** WARNING ******")
+	print(">> Invild request to main SERVER, sorry cann't resgister the node to device-registry, make sure the main server is running!!, and try to restart the node")
+
+# Call function of device registry to do request to the server and register the node in the database
+register_node()
+
+
+print('RUNNING...')
+## Start run the server Node
 if __name__ == '__main__':
-	app.run(host='0.0.0.0',port=9090)
+        app.run(host='0.0.0.0',port=9090)
+
+
+
 
 

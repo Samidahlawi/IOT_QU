@@ -32,8 +32,14 @@ const router = express.Router()
 
 
 // create
-// post /node
-router.post('/node',(req,res,next) => {
-    req.body = req.body
-    res.status(201)
+// post /device-registry
+router.post('/device-registry',(req,res,next) => {
+    body = req.body
+    console.log(body)
+    res.status(201).json({"exist":"True"})
 }) 
+
+
+
+
+module.exports = router
