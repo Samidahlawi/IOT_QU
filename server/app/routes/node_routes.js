@@ -58,6 +58,7 @@ const getNode = (ip,port) => {
     const node = getNode(ip,port)
     .then(response => { 
     //   console.log(response.data)
+    
     })
     .catch(error => { //here will excute if not receive any response so that means the node not exist
             Node.findOne({ip_address:ip})
@@ -65,9 +66,13 @@ const getNode = (ip,port) => {
                 if (node.state == 'on'){ // check if the current state is on then make it off
                     console.log(colors.WARNING + '**** WARNING *****' + colors.ENDC )
                     console.log(colors.WARNING + '>> THE NODE IP: '+ ip + ' NOT AVAILBEL!!' + colors.ENDC )
+                    connectedNodes()
                     return node.update({'state':'off'})  
                 }
                  
+            })
+            .catch(() => {
+                console.log('ERROR IN THE REQUEST TO THE NODE CHECK IF ALIVE OR DEAD!!')
             })
             
     })
@@ -104,8 +109,31 @@ setInterval(checkAllNodes, 5000) /// (callback,sec)
 
   // ========================== END  CHECK THE NODE DEAD OR ALIVE ======================
 
+  // =========== START CONNECTED_NODES HERE =============
+/// this function will tell you which nodes is conneted rihgt-now
+const connectedNodes = (next) => {
+    setTimeout(() => {
+        Node.find()
+        .then(nodes => {
+            nodesOn = nodes.filter(node => node.state == 'on')
+            nodesOn.forEach(node => {
+                    console.log(colors.OKGREEN + '>> THE NODE IP: '+ node.ip_address + ' WORKING...' + colors.ENDC )
+            })
+            if (nodesOn.length == 0){
+                console.log(colors.FAIL + '>> NO NODE CONNECTED TO THE SERVER' + colors.ENDC)
+            }else {
+                console.log(colors.OKBLUE + '>> NUMBERS OF THE NODE CONNECTED: ' + nodesOn.length + ' ' + colors.ENDC)
+            }
+        })
+        .catch(next)
+    }, 0);
+    
+}
+// SHOW ALL NODES CONNTECTED WITH THE SERVER RIGHT-NOW
+connectedNodes()
 
 
+// =========== END CONNECTED_NODES HERE =============
 
 // Index
 // get /nodes
