@@ -4,6 +4,8 @@ const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const cors = require('cors')
 
+
+
 // Define Ports
 const reactPort = 7165  // this port of api of react
 const expressPort = 3000 // this is port of the server 
@@ -83,6 +85,8 @@ app.use(errorHandler)
 app.listen(port, () => {
   console.log('listening on port ' + port)
 })
+
+
 
 // needed for testing
 module.exports = app
