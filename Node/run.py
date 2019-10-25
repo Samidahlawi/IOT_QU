@@ -103,11 +103,18 @@ api.add_resource(ReadData,'/readdata')
 # Make a request to the device-registry in the main server and send the object of node to save it in the database of the server
 def register_node():
     try:
-	r = requests.post('http://'+server.ip+':'+server.port+'/device-registry', json=node)
+	r = requests.post('http://'+server.ip+':'+server.port+'/nodes/device-registry', json=node)
 	res = json.loads(r.text)
-	if res['exist']:
-		print('****** SUCCSSFULLY REGISTERED ******')
-		print('>> The NODE registered succssfully ...')
+	if str(res['state']) == 'exist': # when the response become as exist node so we're going to do update request for update the data in the server
+		try:
+		  update = requests.patch('http://'+server.ip+':'+server.port+'/nodes/'+ node['id'] ,json=node)
+		  print('****** SUCCESSFULLY UPDATED ******')
+		  print('>> THE NODE UP-TO-DATE in the server')
+	        except:
+		  print(">> Cann't UPDATE THE NODE !!") 
+	else:
+		print('****** SUCCESSFULLY REGISTERED ******')
+		print('>> THE NODE registered succssfully ...')
     except:
 	print("****** WARNING ******")
 	print(">> Invild request to main SERVER, sorry cann't resgister the node to device-registry, make sure the main server is running!!, and try to restart the node")
