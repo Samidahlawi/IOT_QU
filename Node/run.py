@@ -3,7 +3,9 @@ from flask_restful import Resource, Api
 from datetime import datetime
 from config import ConfigAddress
 from attachments import Attachment
-import requests, time, json
+from ANSI_escape import bcolors
+import requests, time, json, pprint
+
 
 app = Flask(__name__)
 api = Api(app)
@@ -26,7 +28,8 @@ class Server():
 
 
 ########### START GLOBAL VARIABLES ############
-# SEREVR information
+# SEREVR information (controller)
+		# ip 	,      port
 server = Server('192.168.1.2','3000')
 
 
@@ -34,19 +37,20 @@ server = Server('192.168.1.2','3000')
 all_attachment = ['air quality sensor','temperature sensor', 'humidity sensor'] 
 
 
-# setup the node information
+# setup the NODE information
 node = {
  "ip_address":ConfigAddress().get_ip_address(),
  "id":ConfigAddress().get_mac_address('wlan0'), # wlan0 for interface of wifi in the raspberryPi
  "start":datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
  "attachments":all_attachment,
  "power_supply":"Battery",
- "device_type":"Raspberry PI"
+ "device_type":"Raspberry PI",
+ "port":9090					# which port the current node run on it
 }
 
-print('>>##################################START RUN NODE#####################################')
-print(node)
-print('>>#####################################################################################')
+print(bcolors.UNDERLINE + '>>##################################START RUN NODE#####################################' + bcolors.ENDC)
+pprint.pprint(node)
+print(bcolors.UNDERLINE + '>>#####################################################################################' + bcolors.ENDC)
 ##########  END  GLOBAL VARIABLES ###########
 
 
@@ -54,6 +58,13 @@ print('>>#######################################################################
 # This class for request and response for device information 
 class DeviceInfo(Resource):
 	# function will return json about informatin of device 
+	def get(self):
+		global node
+		return node,200
+
+# This class for receive the request from the main serever to check if the current node is dead or alive
+class CheckDevice(Resource):
+	# it's a normal function with return all the information of the current node
 	def get(self):
 		global node
 		return node,200
@@ -79,8 +90,9 @@ class ReadData(Resource):
 			sensor = Attachment()
 			results.append(sensor.air_quality_sensor()) # there is a paramter 'pin' if you would like to change the pin 
 			if int(time.time() - timestamp) >= duration*60:
-				print('>>done')
+				print(bcolors.OKGREEN + '>>Done ^_^ ')
 				print(results)
+				print(' ' + bcolors.ENDC)
 				return {'results':results,'number_of_result':len(results)}, 200
 
 
@@ -95,6 +107,8 @@ class ReadData(Resource):
 # DEFINE PATH 
 # GET - /device-info => to get details of the device
 api.add_resource(DeviceInfo,'/device-info')
+# GET - /device => return information of the current node
+api.add_resource(CheckDevice,'/device')
 # POST - /readdata 
 api.add_resource(ReadData,'/readdata')
 
@@ -108,25 +122,25 @@ def register_node():
 	if str(res['state']) == 'exist': # when the response become as exist node so we're going to do update request for update the data in the server
 		try:
 		  update = requests.patch('http://'+server.ip+':'+server.port+'/nodes/'+ node['id'] ,json=node)
-		  print('****** SUCCESSFULLY UPDATED ******')
-		  print('>> THE NODE UP-TO-DATE in the server')
+		  print(bcolors.OKBLUE + '****** SUCCESSFULLY UPDATED ******')
+		  print('>> THE NODE UP-TO-DATE in the server' + bcolors.ENDC)
 	        except:
-		  print(">> Cann't UPDATE THE NODE !!") 
+		  print(bcolors.FAIL + ">> Cann't UPDATE THE NODE !!" + bcolors.ENDC) 
 	else:
-		print('****** SUCCESSFULLY REGISTERED ******')
-		print('>> THE NODE registered succssfully ...')
+		print(bcolors.OKGREEN + '****** SUCCESSFULLY REGISTERED ******')
+		print('>> THE NODE registered successfully ...' + bcolors.ENDC)
     except:
-	print("****** WARNING ******")
-	print(">> Invild request to main SERVER, sorry cann't resgister the node to device-registry, make sure the main server is running!!, and try to restart the node")
+	print(bcolors.WARNING  + "****** WORNING ******" + bcolors.ENDC)
+	print(bcolors.FAIL + ">> Invild request to main SERVER, sorry cann't resgister the node to device-registry, make sure the main server is running!!, and try to restart the node" + bcolors.ENDC)
 
 # Call function of device registry to do request to the server and register the node in the database
 register_node()
 
 
-print('RUNNING...')
+print('>>' + bcolors.HEADER + bcolors.BOLD+'THE NODE IS RUNNING...*_*' + bcolors.ENDC)
 ## Start run the server Node
 if __name__ == '__main__':
-        app.run(host='0.0.0.0',port=9090)
+        app.run(host='0.0.0.0',port=node['port'])
 
 
 

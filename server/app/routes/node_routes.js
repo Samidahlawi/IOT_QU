@@ -30,6 +30,9 @@ const requireToken = passport.authenticate('bearer', { session: false })
 // instantiate a router (mini app that only handles routes)
 const router = express.Router()
 
+// import ANSAI excape to color the text in the terminal
+const colors = require('../../ANSI_escape')
+
 
 // ========================== START CHECK THE NODE DEAD OR ALIVE ======================
 //  IMPORT device-registry.js
@@ -40,10 +43,10 @@ const axios = require('axios')
 // //AXIOS
 const getNode = (ip,port) => {
     try{
-      return axios.get(`http://${ip}:${port}/device-info`) //return object of node
+      return axios.get(`http://${ip}:${port}/device`) //return object of node
     } catch(error){
     //   console.log(error)
-    console.log('check node can not make request to node!! file of node_route')
+    console.log(colors.FAIL + 'Clould not reach the node by request it!! file of node_route' + colors.ENDC)
     }
   }
   
@@ -60,8 +63,8 @@ const getNode = (ip,port) => {
             Node.findOne({ip_address:ip})
             .then(node => {
                 if (node.state == 'on'){ // check if the current state is on then make it off
-                    console.log('**** WARNING *****')
-                    console.log('>> THE NODE IP: '+ ip + ' NOT AVAILBEL!!')
+                    console.log(colors.WARNING + '**** WARNING *****' + colors.ENDC )
+                    console.log(colors.WARNING + '>> THE NODE IP: '+ ip + ' NOT AVAILBEL!!' + colors.ENDC )
                     return node.update({'state':'off'})  
                 }
                  
@@ -91,7 +94,7 @@ const checkAllNodes = () => {
         })
     })
     .catch(() => {
-        console.log('error no NODES in the system')
+        console.log(colors.WARNING + 'error no NODES in the system' + colors.ENDC)
     })
 }
 
@@ -133,8 +136,8 @@ router.post('/nodes/device-registry',(req,res,next) => {
             Node.create(body)
             // respond to succesful `create` with status 201 and JSON of new "example"
             .then(node => {
-                console.log('**** SUCCESSUFLLY CONNECTING *****')
-                console.log('>> THE NODE IP: '+ node.ip_address + ' WORKING...')
+                console.log(colors.OKGREEN + '**** SUCCESSUFLLY CONNECTING *****' + colors.ENDC)
+                console.log(colors.OKGREEN + '>> THE NODE IP: '+ node.ip_address + ' WORKING...' + colors.ENDC )
                 res.status(201).json({'state':'created'})
             })  
             .catch(next)
@@ -155,8 +158,8 @@ router.patch('/nodes/:id',(req,res,next) => {
     Node.findOne({id:nodeID})
     .then(handle404)
     .then(node => {
-        console.log('**** SUCCESSUFLLY CONNECTING *****')
-        console.log('>> THE NODE IP: '+ node.ip_address + ' WORKING...')
+        console.log(colors.OKBLUE + '**** SUCCESSUFLLY CONNECTING *****' + colors.ENDC)
+        console.log(colors.OKBLUE + '>> THE NODE IP: '+ node.ip_address + ' WORKING...' + colors.ENDC )
         return node.update(body)   
     })
     //if that succeeded, return 204 and no JSON
