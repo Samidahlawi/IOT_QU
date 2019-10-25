@@ -33,26 +33,26 @@ const router = express.Router()
 
 // ========================== START CHECK THE NODE DEAD OR ALIVE ======================
 //  IMPORT device-registry.js
-// for check for each moment if the node still live or dead
+// for check for each moment if the node still alive or dead
 // Import axios library 
 const axios = require('axios')
 
 // //AXIOS
-const getNode = (ip) => {
+const getNode = (ip,port) => {
     try{
-      return axios.get(`http://${ip}:9090/device-info`) //return object of node
+      return axios.get(`http://${ip}:${port}/device-info`) //return object of node
     } catch(error){
     //   console.log(error)
     console.log('check node can not make request to node!! file of node_route')
     }
   }
   
-  const checkNode = async (ip) => {
+  const checkNode = async (ip,port) => {
     //   console.log('checkNode involved')
     // update the state of the node 
     // select the field or column of node 
     
-    const node = getNode(ip)
+    const node = getNode(ip,port)
     .then(response => { 
     //   console.log(response.data)
     })
@@ -75,16 +75,23 @@ const checkAllNodes = () => {
     .then(handle404)
     .then(nodes => {
          //['192.168.1.2','121.2.12.3',.....]
-        let ips = nodes.filter(node => node.state == 'on')
-            ips = ips.map((node) => node.ip_address)
-        ips.forEach((node) => {
-            if (ips.length){
-                checkNode(node)
+         // onNodes will take all the nodes from database whereas the state is on ONLY
+         // then we use map for return a new array contain ONLY ip && port of each node connected
+        let onNodes = nodes.filter(node => node.state == 'on')
+            onNodes = onNodes.map((node) => {
+                return {'ip':node.ip_address,'port':node.port}
+            })
+            // console.log(onNodes)
+            // looping through the connected nodes and call function checkNode for make request
+            // BUT before do request we have to make sure there are connected nodes in database because that I checked the length of array
+            onNodes.forEach((node) => {
+            if (onNodes.length){
+                checkNode(node.ip,node.port)
             }
         })
     })
     .catch(() => {
-        console.log('error not any nodes in the system')
+        console.log('error no NODES in the system')
     })
 }
 

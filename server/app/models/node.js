@@ -21,6 +21,10 @@ const nodeSchema = new mongoose.Schema({
     state:{
         type:String,
         required:true
+    },
+    port:{
+        type:String,
+        required:true
     }
 },
 {
