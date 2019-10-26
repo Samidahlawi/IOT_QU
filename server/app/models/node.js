@@ -9,8 +9,7 @@ const nodeSchema = new mongoose.Schema({
         type:String,
     },
     ip_address:{
-        type:String,
-        required: true
+        type:String
     },
     start:{
         type:String

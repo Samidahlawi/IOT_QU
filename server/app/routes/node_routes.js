@@ -42,8 +42,9 @@ const axios = require('axios')
 
 // //AXIOS
 const getNode = (ip,port) => {
+    
     try{
-      return axios.get(`http://${ip}:${port}/device`) //return object of node
+      return axios.get(`http://${ip}:${port}/device`)
     } catch(error){
     //   console.log(error)
     console.log(colors.FAIL + 'Clould not reach the node by request it!! file of node_route' + colors.ENDC)
@@ -58,18 +59,26 @@ const getNode = (ip,port) => {
     const node = getNode(ip,port)
     .then(response => { 
     //   console.log(response.data)
-    
+        Node.findOne({ip_address:ip})
+        .then((node) => {
+            if(node.state == 'off'){
+                connectedNodes()
+                return node.update({'state':'on'})
+            }
+        })
+        .catch(() => console.log('should update the ip_address in the DB becaise still undefined'))
+        
     })
     .catch(error => { //here will excute if not receive any response so that means the node not exist
             Node.findOne({ip_address:ip})
             .then(node => {
-                if (node.state == 'on'){ // check if the current state is on then make it off
+                // Should write inside the condition && node.ip_address != null
+                if (node.state == 'on' && node.ip_address != 'undefined'){ // check if the current state is on then make it off
                     console.log(colors.WARNING + '**** WARNING *****' + colors.ENDC )
                     console.log(colors.WARNING + '>> THE NODE IP: '+ ip + ' NOT AVAILBEL!!' + colors.ENDC )
                     connectedNodes()
-                    return node.update({'state':'off'})  
+                    return node.update({'state':'off','ip_address':'undefined'})  
                 }
-                 
             })
             .catch(() => {
                 console.log('ERROR IN THE REQUEST TO THE NODE CHECK IF ALIVE OR DEAD!!')
@@ -85,7 +94,7 @@ const checkAllNodes = () => {
          //['192.168.1.2','121.2.12.3',.....]
          // onNodes will take all the nodes from database whereas the state is on ONLY
          // then we use map for return a new array contain ONLY ip && port of each node connected
-        let onNodes = nodes.filter(node => node.state == 'on')
+        let onNodes = nodes.filter(node => node.state == 'on' && node.ip_address != 'undefined')
             onNodes = onNodes.map((node) => {
                 return {'ip':node.ip_address,'port':node.port}
             })
@@ -187,7 +196,7 @@ router.patch('/nodes/:id',(req,res,next) => {
     .then(handle404)
     .then(node => {
         console.log(colors.OKBLUE + '**** SUCCESSUFLLY CONNECTING *****' + colors.ENDC)
-        console.log(colors.OKBLUE + '>> THE NODE IP: '+ node.ip_address + ' WORKING...' + colors.ENDC )
+        console.log(colors.OKBLUE + '>> THE NODE IP: '+ body.ip_address + ' WORKING...' + colors.ENDC )
         return node.update(body)   
     })
     //if that succeeded, return 204 and no JSON
