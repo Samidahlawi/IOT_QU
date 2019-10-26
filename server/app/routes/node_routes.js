@@ -59,11 +59,16 @@ const getNode = (ip,port) => {
     const node = getNode(ip,port)
     .then(response => { 
     //   console.log(response.data)
+        const body = response.data
         Node.findOne({ip_address:ip})
         .then((node) => {
             if(node.state == 'off'){
                 connectedNodes()
-                return node.update({'state':'on'})
+                body.state = 'on'
+                return node.update(body)
+            }else if (node.ip_address != body.ip_address  || node.id != body.id){
+                body.state = 'on'
+                return node.update(body)
             }
         })
         .catch(() => console.log('should update the ip_address in the DB becaise still undefined'))
@@ -81,7 +86,7 @@ const getNode = (ip,port) => {
                 }
             })
             .catch(() => {
-                console.log('ERROR IN THE REQUEST TO THE NODE CHECK IF ALIVE OR DEAD!!')
+                // console.log('ERROR IN THE REQUEST TO THE NODE CHECK IF ALIVE OR DEAD!!')
             })
             
     })
