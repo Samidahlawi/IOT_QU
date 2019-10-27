@@ -12,10 +12,23 @@ class ConfigAddress:
    return str[0:17]
  
  # method to get the ip address of wichever the interface is used!!
+ # def get_ip_address(self):
+ #   s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+ #   s.connect(("8.8.8.8", 80))
+ #   return s.getsockname()[0]
+ # GET IP ADDRESS 
+ # I RECOMMENDED TO USE THIS FUNCTION IF YOU WANT GET IP ADDRESS OF NODE
+ ### THIS FUNCTION BETTEN THAN OLD ONE BECAUSE SOLVE THE PROBLEM WHEN THE NODE NO CONNECTED TO THE NETWORK AND WILL WORK FINE (:
+ ## SO!! WHEN THE WIFI OF THE NODE IS OFF WILL WORKINGN VERY WELL. IT WILL RETURN 172.0.0.x
   def get_ip_address(self):
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("8.8.8.8", 80))
-    return s.getsockname()[0]
+    hostname = socket.gethostname()
+    IPAddr   = socket.gethostbyname(hostname)
+    return IPAddr
+
+#x = ConfigAddress()
+#print(x.get_ip_address())
+
+
 
 ###
 # This variable will get the MAC-address of wlan0 interface

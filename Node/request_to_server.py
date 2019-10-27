@@ -1,13 +1,16 @@
-import sched, time
-## HERE we're goint to make sure we connected with server
-## WE're using scheduler to excute the function for period of time forexample each 5 minutes
-s = sched.scheduler(time.time, time.sleep)
-minute = 1   ## How many minutes do you want to wait to make request to the main SERVER
+from twisted.internet import task
+from twisted.internet import reactor
 
-def connect_to_server(sc, checked): 
-    print "Doing stuff..."
-    # do your stuff
-    s.enter(60*minute, 1, connect_to_server, (sc,))
+timeout = 5.0 # Sixty seconds
 
-s.enter(60*minute, 1, connect_to_server, (s,))
-s.run()
+def doWork():
+    #do work here
+    print('xxx')
+    pass
+
+l = task.LoopingCall(doWork)
+l.start(timeout) # call every sixty seconds
+
+
+
+reactor.run()

@@ -60,13 +60,10 @@ const getNode = (ip,port) => {
     .then(response => { 
     //   console.log(response.data)
         const body = response.data
-        Node.findOne({ip_address:ip})
+        Node.find({id:body.id})  // TODO: if there are more than one ip same in two rows!!
         .then((node) => {
             if(node.state == 'off'){
                 connectedNodes()
-                body.state = 'on'
-                return node.update(body)
-            }else if (node.ip_address != body.ip_address  || node.id != body.id){
                 body.state = 'on'
                 return node.update(body)
             }
@@ -166,7 +163,10 @@ router.get('/nodes',(req,res,next) => {
 router.post('/nodes/device-registry',(req,res,next) => {
     body = req.body
     nodeID = body.id
+    console.log(nodeID)
+    console.log(body.id)
     Node.count({id:nodeID},function(err,count){
+        console.log(count)
         if(count > 0){
             //When the id exist in the DB will return stats:exist
             //Should the node do anthor request to update the data 
