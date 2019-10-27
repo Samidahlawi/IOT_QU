@@ -21,12 +21,15 @@ class ConfigAddress:
  ### THIS FUNCTION BETTEN THAN OLD ONE BECAUSE SOLVE THE PROBLEM WHEN THE NODE NO CONNECTED TO THE NETWORK AND WILL WORK FINE (:
  ## SO!! WHEN THE WIFI OF THE NODE IS OFF WILL WORKINGN VERY WELL. IT WILL RETURN 172.0.0.x
   def get_ip_address(self):
-    hostname = socket.gethostname()
-    IPAddr   = socket.gethostbyname(hostname)
-    return IPAddr
+   try:
+    	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    	s.connect(("8.8.8.8", 80))
+    	return s.getsockname()[0]
+   except:
+	return 'undefined'
 
-#x = ConfigAddress()
-#print(x.get_ip_address())
+x = ConfigAddress()
+print(x.get_ip_address())
 
 
 
