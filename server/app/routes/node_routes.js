@@ -114,9 +114,27 @@ const checkAllNodes = () => {
     })
 }
 
-//Each 5 miunts the server will cheack
-const sec = 1000 * 60
-setInterval(checkAllNodes, 5000) /// (callback,sec)
+// // Make sure when The first time the server run make all nodes off
+//     const nodeoff = (next) => {
+//         console.log('node off')
+//         Node.find()
+//         .then(nodes => {
+//             nodes.forEach(node => {
+//                 console.log(node.state)
+//                 if (node.state == 'on'){
+//                  node.state = 'off'
+//                  return node.update(node)
+//                 }
+//             })
+//         })
+//         .catch(next)
+//     }
+
+//     nodeoff()
+
+//Each 5 seconds the server will cheack
+const sec = 5000
+setInterval(checkAllNodes, sec) /// (callback,sec)
 
   // ========================== END  CHECK THE NODE DEAD OR ALIVE ======================
 

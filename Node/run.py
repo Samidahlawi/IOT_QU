@@ -21,7 +21,6 @@ api = Api(app)
 ### temporary variables 
 first_time_run = True
 set_time = ''
-
 # class of main server
 class Server():
   def __init__(self,ip,port):
@@ -47,7 +46,7 @@ node = {
  "attachments":all_attachment,
  "power_supply":"Battery",
  "device_type":"Raspberry PI",
- "port":9090					# which port the current node run on it
+ "port":'9090'					# which port the current node run on it
 }
 
 print(bcolors.UNDERLINE + '>>##################################START RUN NODE#####################################' + bcolors.ENDC)
@@ -78,7 +77,7 @@ def up_to_date():
 
 ## make rt global to access everyweher
 rt = ''
-second = 1
+second = 5
 def background_thread():
 	global rt, second
 	rt = RepeatedTimer(second, up_to_date) # it auto-starts, no need of rt.start()
@@ -86,6 +85,8 @@ def background_thread():
     	  sleep(31556952) # your long-running job goes here...
 	except:
 	  print('ONE YEAR $_$')
+	#finally:
+	#  rt.stop()
 
 #### CLEANUP function to close the background-thread 
 def clean_up():
@@ -174,6 +175,7 @@ api.add_resource(ReadData,'/readdata')
 class Registry():
 	# Make a request to the device-registry in the main server and send the object of node to save it in the database of the server
   def register_node(self):
+    global rt
     try:
 	r = requests.post('http://'+server.ip+':'+server.port+'/nodes/device-registry', json=node)
 	res = json.loads(r.text)
@@ -188,11 +190,11 @@ class Registry():
 		print(bcolors.OKGREEN + '****** SUCCESSFULLY REGISTERED ******')
 		print('>> THE NODE registered successfully ...' + bcolors.ENDC)
     except:
-	print(bcolors.WARNING  + "****** WORNING ******" + bcolors.ENDC)
-	print(bcolors.FAIL + ">> Invild request to main SERVER, sorry cann't resgister the node to device-registry, make sure the main server is running!!, and try to restart the node" + bcolors.ENDC)
-	#print("request to the server when it's connecting")
-	#background_thread()
-
+	  	print(bcolors.WARNING  + "****** WORNING ******" + bcolors.ENDC)
+		print(bcolors.FAIL + ">> Invild request to main SERVER, sorry cann't resgister the node to device-registry, make sure the main server is running!!, and try to restart the node" + bcolors.ENDC)
+		#print("request to the server when it's connecting")
+		t = Timer(5,background_thread)
+                t.start() # after 10 seconds, background_thread
 # Call function of device registry to do request to the server and register the node in the database
 start_registry = Registry()
 start_registry.register_node()
@@ -203,11 +205,10 @@ print('>>' + bcolors.HEADER + bcolors.BOLD+'THE NODE IS RUNNING...*_*' + bcolors
 if __name__ == '__main__':
         try:
 		app.run(host='0.0.0.0',port=node['port'])
-		#start_registry.register_node()
 	finally:
 	  try:
 		clean_up()
+		t.cancel()
 		print('SHUT DOWN...')
 	  except:
 		print('SHUT DOWN...')
-
