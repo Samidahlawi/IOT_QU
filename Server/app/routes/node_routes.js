@@ -39,8 +39,17 @@ const colors = require('../../ANSI_escape')
 // for check for each moment if the node still alive or dead
 // Import axios library 
 const axios = require('axios')
-
 // //AXIOS
+
+ // check if there are more node have same ip_addres
+ const makeItOff =  (node) => {
+     console.log(node)
+    Node.updateOne({id:node.id},{'state':'off','ip_address':'undefined'})
+    .catch(() => console.log('error no node have same id'))
+     connectedNodes()
+}
+
+
 const getNode = (ip,port) => {
     
     try{
@@ -60,8 +69,22 @@ const getNode = (ip,port) => {
     .then(response => { 
     //   console.log(response.data)
         const body = response.data
-        Node.find({id:body.id})  // TODO: if there are more than one ip same in two rows!!
+        Node.findOne({id:body.id}) 
         .then((node) => {
+             // TODO: if there are more than one ip same in two rows!!
+            // Node.find({ip_address:ip})
+            // .then(nodes => {
+            //     nodes.forEach( (node) => {
+            //         if (node.id != body.id && node.ip_address == ip ){
+            //             console.log('THERE ARE TWO NODE HAVE SAME IP IN DATABASE !!!!!!!!!!!!!!!!!!!')
+            //             makeItOff(node)
+            //         }
+            //     })
+            // })
+            // End the check of IPs of nodes
+
+
+           // End the check of IPs of nodes
             if(node.state == 'off'){
                 connectedNodes()
                 body.state = 'on'
@@ -114,23 +137,21 @@ const checkAllNodes = () => {
     })
 }
 
-// // Make sure when The first time the server run make all nodes off
-//     const nodeoff = (next) => {
-//         console.log('node off')
-//         Node.find()
-//         .then(nodes => {
-//             nodes.forEach(node => {
-//                 console.log(node.state)
-//                 if (node.state == 'on'){
-//                  node.state = 'off'
-//                  return node.update(node)
-//                 }
-//             })
-//         })
-//         .catch(next)
-//     }
-
-//     nodeoff()
+// Make sure when The first time the server run make all nodes off
+    // const nodesOff = (next) => {
+    //     Node.find()
+    //     .then(nodes => {
+    //         nodes.forEach(node => {
+    //             console.log(node.state)  
+    //             if (node.state == 'on'){ 
+    //                 makeItOff(node)
+    //             }
+    //         })
+    //     })
+    //     .catch(next)
+    // }
+ /// call this function after 10 mileseconds to reset the database all the nodes as Off 
+// setTimeout(nodesOff,10)
 
 //Each 5 seconds the server will cheack
 const sec = 5000
