@@ -65,10 +65,20 @@ def up_to_date():
     	#register_node()
 	#print('Requesting to server')
 	try:
-                  update = requests.patch('http://'+server.ip+':'+server.port+'/nodes/'+ node['id'] ,json=node)
-                  print(bcolors.OKBLUE + '****** SUCCESSFULLY UPDATED ******')
-                  print('>> THE NODE UP-TO-DATE in the server' + bcolors.ENDC)
-		  clean_up()
+	  r = requests.post('http://'+server.ip+':'+server.port+'/nodes/device-registry', json=node)
+	  res = json.loads(r.text)
+	  if str(res['state']) == 'exist': # when the response become as exist node so we're going to do update request for update the data in the server
+	    	try:
+		  update = requests.patch('http://'+server.ip+':'+server.port+'/nodes/'+ node['id'] ,json=node)
+		  print(bcolors.OKBLUE + '****** SUCCESSFULLY UPDATED ******')
+		  print('>> THE NODE UP-TO-DATE in the server' + bcolors.ENDC)
+	          clean_up()
+		except:
+		  print(bcolors.FAIL + ">> Cann't UPDATE THE NODE !!" + bcolors.ENDC) 
+	  else:
+		print(bcolors.OKGREEN + '****** SUCCESSFULLY REGISTERED ******')
+		print('>> THE NODE registered successfully ...' + bcolors.ENDC)
+		clean_up()
 	except:
 		  print(bcolors.WARNING  + "****** WORNING ******" + bcolors.ENDC)
       		  print(bcolors.FAIL + ">> Invild request to main SERVER, sorry cann't resgister the node to device-registry, make sure the main server is running!!, and try to restart the node" + bcolors.ENDC)
@@ -77,7 +87,7 @@ def up_to_date():
 
 ## make rt global to access everyweher
 rt = ''
-second = 5
+second = 10
 def background_thread():
 	global rt, second
 	rt = RepeatedTimer(second, up_to_date) # it auto-starts, no need of rt.start()
@@ -113,6 +123,7 @@ class CheckDevice(Resource):
 	# it's a normal function with return all the information of the current node
 	def get(self):
 		global node, set_time
+		node['ip_address'] = ConfigAddress().get_ip_address()
 		set_time = time.time()
 		t = Timer(10,self.is_node_connect_to_server)
 		t.start() # after 10 seconds, is_node_connect_to_server
