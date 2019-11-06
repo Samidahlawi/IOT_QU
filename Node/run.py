@@ -198,7 +198,7 @@ class Registry():
 		  update = requests.patch('http://'+server.ip+':'+server.port+'/nodes/'+ node['id'] ,json=node)
 		  print(bcolors.OKBLUE + '****** SUCCESSFULLY UPDATED ******')
 		  print('>> THE NODE UP-TO-DATE in the server' + bcolors.ENDC)
-	        except:
+	    except:
 		  print(bcolors.FAIL + ">> Cann't UPDATE THE NODE !!" + bcolors.ENDC) 
 	else:
 		print(bcolors.OKGREEN + '****** SUCCESSFULLY REGISTERED ******')
