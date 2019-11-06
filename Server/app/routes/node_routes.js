@@ -43,7 +43,6 @@ const axios = require('axios')
 
  // check if there are more node have same ip_addres
  const makeItOff =  (node) => {
-     console.log(node)
     Node.updateOne({id:node.id},{'state':'off','ip_address':'undefined'})
     .catch(() => console.log('error no node have same id'))
      connectedNodes()
@@ -72,23 +71,25 @@ const getNode = (ip,port) => {
         Node.findOne({id:body.id}) 
         .then((node) => {
              // TODO: if there are more than one ip same in two rows!!
-            // Node.find({ip_address:ip})
-            // .then(nodes => {
-            //     nodes.forEach( (node) => {
-            //         if (node.id != body.id && node.ip_address == ip ){
-            //             console.log('THERE ARE TWO NODE HAVE SAME IP IN DATABASE !!!!!!!!!!!!!!!!!!!')
-            //             makeItOff(node)
-            //         }
-            //     })
-            // })
+            Node.find({ip_address:ip})
+            .then(nodes => {
+                nodes.forEach( (node) => {
+                    if (node.id != body.id && node.ip_address == ip ){
+                        console.log('THERE ARE TWO NODE HAVE SAME IP IN DATABASE !!!!!!!!!!!!!!!!!!!')
+                        makeItOff(node)
+                    }
+                })
+            })
             // End the check of IPs of nodes
 
 
            // End the check of IPs of nodes
             if(node.state == 'off'){
-                connectedNodes()
                 body.state = 'on'
-                return node.update(body)
+                if(node.id == body.id){
+                    connectedNodes()
+                    return node.update(body)
+                }
             }
         })
         .catch(() => console.log('should update the ip_address in the DB becaise still undefined'))
@@ -138,20 +139,22 @@ const checkAllNodes = () => {
 }
 
 // Make sure when The first time the server run make all nodes off
-    // const nodesOff = (next) => {
-    //     Node.find()
-    //     .then(nodes => {
-    //         nodes.forEach(node => {
-    //             console.log(node.state)  
-    //             if (node.state == 'on'){ 
-    //                 makeItOff(node)
-    //             }
-    //         })
-    //     })
-    //     .catch(next)
-    // }
- /// call this function after 10 mileseconds to reset the database all the nodes as Off 
-// setTimeout(nodesOff,10)
+    const nodesOff = (next) => {
+        Node.find()
+        .then(nodes => {
+            nodes.forEach(node => {
+               
+                if (node.state == 'on'){ 
+                    // console.log(node.state)  
+                    makeItOff(node)
+                }
+            })
+        })
+        .catch(next)
+    }
+
+ // call this function after 10 mileseconds to reset the database all the nodes as Off 
+setTimeout(nodesOff,5)
 
 //Each 5 seconds the server will cheack
 const sec = 5000
@@ -176,11 +179,12 @@ const connectedNodes = (next) => {
             }
         })
         .catch(next)
-    }, 0);
+    }, 1000);
     
 }
 // SHOW ALL NODES CONNTECTED WITH THE SERVER RIGHT-NOW
-connectedNodes()
+setTimeout(connectedNodes,1000)
+
 
 
 // =========== END CONNECTED_NODES HERE =============
