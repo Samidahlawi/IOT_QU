@@ -69,25 +69,26 @@ def up_to_date():
 	  res = json.loads(r.text)
 	  if str(res['state']) == 'exist': # when the response become as exist node so we're going to do update request for update the data in the server
 	    	try:
-				update = requests.patch('http://'+server.ip+':'+server.port+'/nodes/'+ node['id'] ,json=node)
-				print(bcolors.OKBLUE + '****** SUCCESSFULLY UPDATED ******')
-				print('>> THE NODE UP-TO-DATE in the server' + bcolors.ENDC)
-				clean_up()
-			except:
-		 	    print(bcolors.FAIL + ">> Cann't UPDATE THE NODE !!" + bcolors.ENDC) 
+		  update = requests.patch('http://'+server.ip+':'+server.port+'/nodes/'+ node['id'] ,json=node)
+		  print(bcolors.OKBLUE + '****** SUCCESSFULLY UPDATED ******')
+		  print('>> THE NODE UP-TO-DATE in the server' + bcolors.ENDC)
+	          clean_up()
+		except:
+		  print(bcolors.FAIL + ">> Cann't UPDATE THE NODE !!" + bcolors.ENDC) 
 	  else:
 		print(bcolors.OKGREEN + '****** SUCCESSFULLY REGISTERED ******')
 		print('>> THE NODE registered successfully ...' + bcolors.ENDC)
 		clean_up()
+		DeviceInfo('/device')
 	except:
 		  print(bcolors.WARNING  + "****** WORNING ******" + bcolors.ENDC)
-      	  print(bcolors.FAIL + ">> Invild request to main SERVER, sorry cann't resgister the node to device-registry, make sure the main server is running!!, and try to restart the node" + bcolors.ENDC)
+      		  print(bcolors.FAIL + ">> Invild request to main SERVER, sorry cann't resgister the node to device-registry, make sure the main server is running!!, and try to restart the node" + bcolors.ENDC)
     else:
         print(bcolors.UNDERLINE + "YOU'RE NOT CONNECTING TO WIFI :( " + bcolors.ENDC)
 
 ## make rt global to access everyweher
 rt = ''
-second = 10
+second = 7
 def background_thread():
 	global rt, second
 	rt = RepeatedTimer(second, up_to_date) # it auto-starts, no need of rt.start()
@@ -124,13 +125,13 @@ class CheckDevice(Resource):
 	def get(self):
 		global node, set_time
 		try:
-			clean_up()
+   		  clean_up() ## call clean_up function to kill the background thread if exist !!
 		finally:
-			node['ip_address'] = ConfigAddress().get_ip_address()
-			set_time = time.time()
-			t = Timer(10,self.is_node_connect_to_server)
-			t.start() # after 10 seconds, is_node_connect_to_server
-			return node,200
+		  node['ip_address'] = ConfigAddress().get_ip_address()
+		  set_time = time.time()
+		  t = Timer(10,self.is_node_connect_to_server)
+		  t.start() # after 10 seconds, is_node_connect_to_server
+       		  return node,200
 
 	def is_node_connect_to_server(self):
 		global set_time, thread_killed
@@ -198,7 +199,7 @@ class Registry():
 		  update = requests.patch('http://'+server.ip+':'+server.port+'/nodes/'+ node['id'] ,json=node)
 		  print(bcolors.OKBLUE + '****** SUCCESSFULLY UPDATED ******')
 		  print('>> THE NODE UP-TO-DATE in the server' + bcolors.ENDC)
-	    except:
+	        except:
 		  print(bcolors.FAIL + ">> Cann't UPDATE THE NODE !!" + bcolors.ENDC) 
 	else:
 		print(bcolors.OKGREEN + '****** SUCCESSFULLY REGISTERED ******')
