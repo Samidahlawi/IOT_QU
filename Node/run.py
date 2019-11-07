@@ -8,7 +8,7 @@ import requests, time, json, pprint
 from background_thread import RepeatedTimer
 from time import sleep
 from threading import Timer
-
+from random import randint
 app = Flask(__name__)
 api = Api(app)
 
@@ -73,6 +73,7 @@ def up_to_date():
 		  print(bcolors.OKBLUE + '****** SUCCESSFULLY UPDATED ******')
 		  print('>> THE NODE UP-TO-DATE in the server' + bcolors.ENDC)
 	          clean_up()
+		  DeviceInfo('/device')
 		except:
 		  print(bcolors.FAIL + ">> Cann't UPDATE THE NODE !!" + bcolors.ENDC) 
 	  else:
@@ -88,7 +89,11 @@ def up_to_date():
 
 ## make rt global to access everyweher
 rt = ''
-second = 7
+random_number = randint(1,10) #random number from 1 to 10
+get_last_two_id = int(node['id'][-2:],16) #get the last two '-2' number in id of the node THEN convert it from Hexa to Decimal 
+second = abs(get_last_two_id - random_number) ## subtract the get_last.. from random_number and get the absoulte of number and make it as second to do request to server 'controller'
+#print('++++++++++++++')
+#print(second) time to make request to the controller 'server'
 def background_thread():
 	global rt, second
 	rt = RepeatedTimer(second, up_to_date) # it auto-starts, no need of rt.start()
