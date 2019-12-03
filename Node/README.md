@@ -1,6 +1,6 @@
 ## NODE 
 
-## SETUP
+# SETUP
 - You should have python version 2.7 or later 
 - Install Flask
 ```
