@@ -1,5 +1,24 @@
 ## NODE 
-#paths
+
+## SETUP
+- You should have python version 2.7 or later 
+- Install Flask
+```
+sudo pip install Flask
+```
+- install Flask-API
+```
+sudo pip install Flask-API
+```
+- install Flask-RESTful
+```
+pip install Flask-RESTful
+```
+THEN Run run.py file in Node folder 
+```
+python run.py
+```
+# paths
 - for get the information of the node from client side
 ```
 /device-info
