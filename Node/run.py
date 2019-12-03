@@ -167,7 +167,7 @@ class ReadData(Resource):
 			time.sleep(interval)
 			sensor = Attachment()
 			results.append(sensor.air_quality_sensor()) # there is a paramter 'pin' if you would like to change the pin 
-			if int(time.time() - timestamp) >= duration*60:
+			if int(time.time() - timestamp) >= duration:
 				print(bcolors.OKGREEN + '>>Done ^_^ ')
 				print(results)
 				print(' ' + bcolors.ENDC)
