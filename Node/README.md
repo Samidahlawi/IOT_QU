@@ -1,4 +1,4 @@
-## NODE 
+# NODE 
 
 ## SETUP
 - You should have python version 2.7 or later 
@@ -29,9 +29,9 @@ path
 /readdata
 ```
 JSON look like this when you try to read data
-name_attatchment -> what sensor do your looking for
-duration -> how long do you wanna read from the sensor
-interval -> forEach period of time you wanna read ex for each 5 seconds read once 
+- name_attatchment -> what sensor do you're looking for
+- duration -> how long do you wanna read from the sensor
+- interval -> forEach period of time you wanna read ex for each 5 seconds read once 
 ```
 {
 	"name_attachment": "air quality sensor",
