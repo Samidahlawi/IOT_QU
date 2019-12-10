@@ -28,4 +28,9 @@ userSchema.virtual('examples', {
   foreignField: 'owner'
 });
 
+userSchema.virtual('experiments', {
+  ref: 'Experiment',
+  localField: '_id',
+  foreignField: 'owner'
+});
 module.exports = mongoose.model('User', userSchema)
